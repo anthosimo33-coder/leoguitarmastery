@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Protocole Guitare Mastery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,900&family=Inter+Tight:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       DESIGN TOKENS
+       ========================================================== */
+    :root {
+      --rouge: #B8112E;
+      --rouge-dark: #8B0D24;
+      --rouge-light: #E63946;
+      --rouge-soft: rgba(184, 17, 46, 0.08);
+      --rouge-glow: rgba(184, 17, 46, 0.15);
+
+      --noir: #0A0A0A;
+      --noir-soft: #1A1A1A;
+      --gris-900: #2A2A2A;
+      --gris-700: #4A4A4A;
+      --gris-500: #7A7A7A;
+      --gris-300: #C4C4C4;
+      --gris-100: #F5F4F1;
+      --gris-50: #FAF9F7;
+
+      --creme: #F8F5F0;
+      --or: #C9A961;
+
+      --shadow-sm: 0 2px 8px rgba(10, 10, 10, 0.04);
+      --shadow-md: 0 8px 24px rgba(10, 10, 10, 0.08);
+      --shadow-lg: 0 24px 48px rgba(10, 10, 10, 0.12);
+      --shadow-xl: 0 40px 80px rgba(10, 10, 10, 0.18);
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font-body);
+      background: var(--creme);
+      color: var(--noir);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ==========================================================
+       LAYOUT GLOBAL
+       ========================================================== */
+    .deck {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 4vh 6vw;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(40px);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0s linear 0.5s;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition-delay: 0s;
+    }
+
+    .slide-content {
+      width: 100%;
+      max-width: 1200px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Numéro de slide en filigrane */
+    .slide-number {
+      position: absolute;
+      top: 5vh;
+      right: 5vw;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gris-500);
+      letter-spacing: 0.1em;
+      z-index: 3;
+    }
+
+    .slide-number .current {
+      color: var(--rouge);
+      font-weight: 700;
+    }
+
+    /* Branding discret */
+    .brand {
+      position: absolute;
+      top: 5vh;
+      left: 5vw;
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--gris-700);
+      letter-spacing: 0.05em;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--rouge);
+      border-radius: 50%;
+    }
+
+    /* ==========================================================
+       NAVIGATION
+       ========================================================== */
+    .nav {
+      position: fixed;
+      bottom: 4vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 12px 20px;
+      border-radius: 100px;
+      box-shadow: var(--shadow-lg);
+      z-index: 10;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .nav-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: var(--noir);
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      font-size: 18px;
+    }
+
+    .nav-btn:hover {
+      background: var(--rouge);
+      transform: scale(1.08);
+    }
+
+    .nav-btn:disabled {
+      background: var(--gris-300);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .nav-dots {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--gris-300);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      padding: 0;
+    }
+
+    .nav-dot.active {
+      background: var(--rouge);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .nav-dot:hover:not(.active) {
+      background: var(--gris-500);
+      transform: scale(1.3);
+    }
+
+    /* Indication clavier */
+    .keyboard-hint {
+      position: fixed;
+      bottom: 4vh;
+      right: 4vw;
+      font-size: 11px;
+      color: var(--gris-500);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .keyboard-hint kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      background: white;
+      border: 1px solid var(--gris-300);
+      border-radius: 4px;
+      font-family: var(--font-body);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--gris-700);
+      box-shadow: 0 1px 0 var(--gris-300);
+      margin: 0 2px;
+    }
+
+    /* ==========================================================
+       ANIMATIONS D'APPARITION (UNIFORMISÉES)
+       ========================================================== */
+    .slide.active .reveal,
+    .slide.active .reveal-1,
+    .slide.active .reveal-2,
+    .slide.active .reveal-3,
+    .slide.active .reveal-4,
+    .slide.active .reveal-5,
+    .slide.active .reveal-6,
+    .slide.active .reveal-7,
+    .slide.active .reveal-8 {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal,
+    .reveal-1, .reveal-2, .reveal-3, .reveal-4,
+    .reveal-5, .reveal-6, .reveal-7, .reveal-8 {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .slide.active .reveal-1 { transition-delay: 0.2s; }
+    .slide.active .reveal-2 { transition-delay: 0.35s; }
+    .slide.active .reveal-3 { transition-delay: 0.5s; }
+    .slide.active .reveal-4 { transition-delay: 0.65s; }
+    .slide.active .reveal-5 { transition-delay: 0.8s; }
+    .slide.active .reveal-6 { transition-delay: 0.95s; }
+    .slide.active .reveal-7 { transition-delay: 1.1s; }
+    .slide.active .reveal-8 { transition-delay: 1.25s; }
+
+    /* ==========================================================
+       SLIDE 1 — COUVERTURE
+       ========================================================== */
+    .cover {
+      background: var(--noir);
+      color: white;
+      overflow: hidden;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .cover-bg::before {
+      content: "";
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 60%;
+      height: 80%;
+      background: radial-gradient(circle, var(--rouge-glow) 0%, transparent 60%);
+      filter: blur(40px);
+    }
+
+    .cover-bg::after {
+      content: "";
+      position: absolute;
+      bottom: -20%;
+      left: -10%;
+      width: 50%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(201, 169, 97, 0.08) 0%, transparent 60%);
+      filter: blur(60px);
+    }
+
+    .cover .slide-content {
+      text-align: center;
+      z-index: 2;
+    }
+
+    .cover-eyebrow {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--rouge-light);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .cover-title {
+      font-family: var(--font-display);
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+
+    .cover-title em {
+      font-style: italic;
+      color: var(--rouge-light);
+      font-weight: 500;
+    }
+
+    .cover-subtitle {
+      font-size: clamp(16px, 1.5vw, 20px);
+      font-weight: 300;
+      color: var(--gris-300);
+      letter-spacing: 0.05em;
+      margin-bottom: 48px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
+
+    .cover-divider {
+      width: 64px;
+      height: 2px;
+      background: var(--rouge);
+      margin: 0 auto;
+    }
+
+    /* ==========================================================
+       SLIDE 2 — LA MÉTHODE
+       ========================================================== */
+    .methode {
+      background: var(--creme);
+    }
+
+    .methode-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .methode-left {
+      position: relative;
+    }
+
+    .section-eyebrow {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--rouge);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-eyebrow::before {
+      content: "";
+      width: 32px;
+      height: 1px;
+      background: var(--rouge);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--noir);
+      margin-bottom: 32px;
+    }
+
+    .section-title em {
+      font-style: italic;
+      color: var(--rouge);
+      font-weight: 600;
+    }
+
+    .section-text {
+      font-size: 18px;
+      line-height: 1.6;
+      color: var(--gris-700);
+      max-width: 480px;
+    }
+
+    .section-text strong {
+      color: var(--noir);
+      font-weight: 600;
+    }
+
+    /* Visual de la méthode (côté droit) */
+    .methode-visual {
+      position: relative;
+      width: 420px;
+      height: 420px;
+      max-width: 100%;
+      margin: 0 auto;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 1100px) {
+      .methode-visual {
+        width: 320px;
+        height: 320px;
+      }
+    }
+
+    .scanner-circle {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--gris-300);
+      border-radius: 50%;
+      animation: scannerSpin 20s linear infinite;
+    }
+
+    .scanner-circle:nth-child(2) {
+      inset: 12%;
+      border-color: var(--rouge-glow);
+      animation-direction: reverse;
+      animation-duration: 15s;
+    }
+
+    .scanner-circle:nth-child(3) {
+      inset: 24%;
+      border-color: var(--rouge);
+      border-style: dashed;
+      animation-duration: 25s;
+    }
+
+    @keyframes scannerSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .scanner-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      margin-top: -100px;
+      margin-left: -100px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .scanner-number {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 72px);
+      font-weight: 700;
+      color: var(--rouge);
+      line-height: 1;
+      font-style: italic;
+    }
+
+    .scanner-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gris-700);
+      margin-top: 6px;
+    }
+
+    .scanner-detail {
+      font-size: 10px;
+      color: var(--gris-500);
+      margin-top: 4px;
+      max-width: 110px;
+      line-height: 1.3;
+      letter-spacing: 0.02em;
+    }
+
+    /* Points orbitaux */
+    .orbit-point {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: var(--rouge);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px white, 0 0 0 5px var(--rouge);
+    }
+
+    .orbit-point:nth-child(4) { top: 8%; left: 50%; transform: translateX(-50%); }
+    .orbit-point:nth-child(5) { bottom: 18%; left: 18%; }
+    .orbit-point:nth-child(6) { bottom: 18%; right: 18%; }
+
+    /* ==========================================================
+       SLIDE 3 — LES 3 PILIERS (INTERCONNECTÉS)
+       ========================================================== */
+    .piliers {
+      background: white;
+    }
+
+    .piliers-header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .piliers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .pilier {
+      background: var(--gris-50);
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: relative;
+      border: 1px solid transparent;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: default;
+    }
+
+    .pilier:hover {
+      border-color: var(--rouge);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pilier-num {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--rouge);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+    }
+
+    .pilier-title {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.15;
+      color: var(--noir);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .pilier-tagline {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gris-700);
+      margin-bottom: 20px;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    .pilier-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .pilier-list li {
+      font-size: 14px;
+      color: var(--gris-700);
+      line-height: 1.5;
+      padding: 6px 0 6px 18px;
+      position: relative;
+    }
+
+    .pilier-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 14px;
+      width: 6px;
+      height: 6px;
+      background: var(--rouge);
+      border-radius: 50%;
+    }
+
+    /* Indicateur d'interconnexion */
+    .interconnect {
+      margin-top: 32px;
+      padding: 20px 28px;
+      background: var(--rouge-soft);
+      border-left: 3px solid var(--rouge);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .interconnect-icon {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--rouge);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .interconnect-text {
+      font-size: 14px;
+      color: var(--noir);
+      line-height: 1.5;
+    }
+
+    .interconnect-text strong {
+      color: var(--rouge);
+      font-weight: 700;
+    }
+
+    /* ==========================================================
+       SLIDE 4 — LES BONUS
+       ========================================================== */
+    .bonus {
+      background: var(--creme);
+    }
+
+    .bonus-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .bonus-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      transition: all 0.3s ease;
+      border: 1px solid var(--gris-100);
+    }
+
+    .bonus-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--rouge-glow);
+    }
+
+    .bonus-num {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: var(--rouge);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 18px;
+      font-style: italic;
+    }
+
+    .bonus-content {
+      flex: 1;
+    }
+
+    .bonus-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--noir);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .bonus-desc {
+      font-size: 13px;
+      color: var(--gris-700);
+      line-height: 1.5;
+    }
+
+    /* ==========================================================
+       SLIDE 5 — GARANTIE
+       ========================================================== */
+    .garantie {
+      background: var(--noir);
+      color: white;
+    }
+
+    .garantie .slide-content {
+      text-align: center;
+    }
+
+    .garantie .section-eyebrow {
+      color: var(--rouge-light);
+      justify-content: center;
+    }
+
+    .garantie .section-eyebrow::before {
+      background: var(--rouge-light);
+    }
+
+    .garantie-shield {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 32px;
+      background: linear-gradient(135deg, var(--rouge) 0%, var(--rouge-dark) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 8px rgba(184, 17, 46, 0.15),
+                  0 0 0 16px rgba(184, 17, 46, 0.08);
+      position: relative;
+    }
+
+    .garantie-shield::after {
+      content: "";
+      position: absolute;
+      inset: -30px;
+      border: 1px dashed var(--rouge);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: shieldPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes shieldPulse {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.05); opacity: 0.5; }
+    }
+
+    .garantie-shield svg {
+      width: 56px;
+      height: 56px;
+      stroke: white;
+      stroke-width: 1.5;
+      fill: none;
+    }
+
+    .garantie-title {
+      font-family: var(--font-display);
+      font-size: clamp(40px, 5vw, 64px);
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+    }
+
+    .garantie-title em {
+      font-style: italic;
+      color: var(--rouge-light);
+    }
+
+    .garantie-statement {
+      font-size: clamp(18px, 1.6vw, 22px);
+      font-weight: 300;
+      color: var(--gris-300);
+      max-width: 700px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .garantie-statement strong {
+      color: white;
+      font-weight: 500;
+    }
+
+    .garantie-conditions {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 100px;
+      font-size: 14px;
+      color: var(--gris-300);
+    }
+
+    .garantie-conditions strong {
+      color: white;
+      font-weight: 600;
+    }
+
+    /* ==========================================================
+       SLIDE 6 — VALEUR & PRIX
+       ========================================================== */
+    .prix {
+      background: var(--creme);
+    }
+
+    .prix-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .prix-table {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow-md);
+    }
+
+    .prix-table-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      font-style: italic;
+      color: var(--gris-700);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--gris-100);
+      letter-spacing: 0.02em;
+    }
+
+    .prix-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gris-100);
+    }
+
+    .prix-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .prix-row-label {
+      font-size: 14px;
+      color: var(--gris-700);
+      flex: 1;
+      padding-right: 16px;
+    }
+
+    .prix-row-value {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--noir);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .prix-total {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 2px solid var(--noir);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .prix-total-label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gris-700);
+    }
+
+    .prix-total-value {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--noir);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Côté droit : prix réel */
+    .prix-final {
+      text-align: center;
+      position: relative;
+    }
+
+    .prix-final-label {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 500;
+      font-style: italic;
+      color: var(--gris-700);
+      margin-bottom: 16px;
+      letter-spacing: 0.05em;
+    }
+
+    .prix-final-amount {
+      font-family: var(--font-display);
+      font-size: clamp(80px, 10vw, 140px);
+      font-weight: 700;
+      line-height: 0.95;
+      color: var(--rouge);
+      letter-spacing: -0.04em;
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+
+    .prix-final-currency {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--noir);
+      margin-bottom: 24px;
+    }
+
+    .prix-final-divider {
+      width: 48px;
+      height: 1px;
+      background: var(--gris-300);
+      margin: 24px auto;
+    }
+
+    .prix-final-alt {
+      font-size: 16px;
+      color: var(--gris-700);
+    }
+
+    .prix-final-alt strong {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--noir);
+      font-style: italic;
+    }
+
+    .prix-savings {
+      display: inline-block;
+      margin-top: 24px;
+      padding: 8px 18px;
+      background: var(--rouge);
+      color: white;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================
+       SLIDE 7 — ASYMÉTRIE DE RISQUE
+       ========================================================== */
+    .risque {
+      background: white;
+    }
+
+    .risque-balance {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 40px;
+      align-items: center;
+      max-width: 1000px;
+      margin: 60px auto 0;
+    }
+
+    .risque-side {
+      text-align: center;
+      padding: 40px 32px;
+      border-radius: 16px;
+      position: relative;
+    }
+
+    .risque-side.lui {
+      background: var(--gris-50);
+      border: 1px solid var(--gris-100);
+    }
+
+    .risque-side.toi {
+      background: linear-gradient(135deg, var(--rouge) 0%, var(--rouge-dark) 100%);
+      color: white;
+    }
+
+    .risque-label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 500;
+      font-style: italic;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+
+    .risque-side.toi .risque-label {
+      opacity: 1;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .risque-amount {
+      font-family: var(--font-display);
+      font-size: clamp(56px, 7vw, 88px);
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      margin-bottom: 12px;
+    }
+
+    .risque-side.lui .risque-amount {
+      color: var(--noir);
+    }
+
+    .risque-detail {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .risque-side.lui .risque-detail {
+      color: var(--gris-700);
+    }
+
+    .risque-side.toi .risque-detail {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .risque-vs {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--rouge);
+    }
+
+    /* ==========================================================
+       RESPONSIVE & FAILSAFE
+       ========================================================== */
+    @media (max-width: 1100px) {
+      .methode-grid,
+      .prix-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+      .piliers-grid,
+      .bonus-grid {
+        grid-template-columns: 1fr;
+      }
+      .risque-balance {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .risque-vs {
+        margin: 0 auto;
+      }
+    }
+
+    /* Print fallback */
+    @media print {
+      .nav, .keyboard-hint { display: none; }
+      .slide { position: relative; opacity: 1; visibility: visible; transform: none; page-break-after: always; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ====================================================
+       SLIDE 1 — COUVERTURE
+       ==================================================== -->
+  <section class="slide cover active" data-slide="1">
+    <div class="cover-bg"></div>
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">01</span> / 07</div>
+    <div class="slide-content">
+      <div class="cover-eyebrow reveal-2">Programme Premium · 90 jours</div>
+      <h1 class="cover-title reveal-3">
+        Le <em>Protocole</em><br>Guitare Mastery
+      </h1>
+      <p class="cover-subtitle reveal-4">
+        La méthode propriétaire qui transforme les autodidactes adultes
+        bloqués depuis des années en guitaristes accomplis.
+      </p>
+      <div class="cover-divider reveal-5"></div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 2 — LA MÉTHODE
+       ==================================================== -->
+  <section class="slide methode" data-slide="2">
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">02</span> / 07</div>
+    <div class="slide-content">
+      <div class="methode-grid">
+        <div class="methode-left">
+          <div class="section-eyebrow reveal-2">La Fondation</div>
+          <h2 class="section-title reveal-3">
+            La Méthode<br><em>Guitare Mastery</em>
+          </h2>
+          <p class="section-text reveal-4">
+            Un protocole de diagnostic propriétaire qui identifie
+            <strong>en moins de 60 secondes</strong> les
+            <strong>3 erreurs structurelles invisibles</strong>
+            qui bloquent 90% des autodidactes adultes.
+          </p>
+          <p class="section-text reveal-5" style="margin-top: 20px;">
+            Celles que les tutos YouTube ne corrigent pas.
+            Celles qu'aucun ami guitariste ne voit.
+            Celles qui expliquent pourquoi tu stagnes.
+          </p>
+        </div>
+        <div class="methode-visual reveal-3">
+          <div class="scanner-circle"></div>
+          <div class="scanner-circle"></div>
+          <div class="scanner-circle"></div>
+          <div class="orbit-point"></div>
+          <div class="orbit-point"></div>
+          <div class="orbit-point"></div>
+          <div class="scanner-center">
+            <div class="scanner-number">3</div>
+            <div class="scanner-label">Erreurs</div>
+            <div class="scanner-detail">Structurelles · Invisibles · Identifiées</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 3 — LES 3 PILIERS
+       ==================================================== -->
+  <section class="slide piliers" data-slide="3">
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">03</span> / 07</div>
+    <div class="slide-content">
+      <div class="piliers-header">
+        <div class="section-eyebrow reveal-2" style="justify-content: center;">Le Programme · 90 jours</div>
+        <h2 class="section-title reveal-3" style="margin-bottom: 16px;">
+          3 piliers <em>interconnectés</em>
+        </h2>
+        <p class="section-text reveal-4" style="margin: 0 auto; max-width: 640px; text-align: center;">
+          Pas une suite d'étapes linéaires.
+          Trois axes qui travaillent en parallèle pendant 90 jours,
+          chacun nourrissant les deux autres.
+        </p>
+      </div>
+
+      <div class="piliers-grid">
+        <div class="pilier reveal-5">
+          <div class="pilier-num">— 01</div>
+          <h3 class="pilier-title">Diagnostic Hebdomadaire</h3>
+          <p class="pilier-tagline">Ta session 1-to-1 avec Léo, chaque semaine.</p>
+          <ul class="pilier-list">
+            <li>Session 1-to-1 de 45 min</li>
+            <li>Routine d'exercices personnalisée</li>
+            <li>Replay du cours, revisionnable à volonté</li>
+            <li>Chat direct avec Léo entre les sessions</li>
+          </ul>
+        </div>
+
+        <div class="pilier reveal-6">
+          <div class="pilier-num">— 02</div>
+          <h3 class="pilier-title">Spécialisation Stylistique</h3>
+          <p class="pilier-tagline">Ton univers musical définit le Protocole sur 90 jours.</p>
+          <ul class="pilier-list">
+            <li>Choix de l'univers (rock, blues, folk, classique...)</li>
+            <li>Plan d'entraînement entièrement sur-mesure</li>
+            <li>Aisance dans l'improvisation</li>
+            <li>Capacité à jouer devant plusieurs personnes</li>
+          </ul>
+        </div>
+
+        <div class="pilier reveal-7">
+          <div class="pilier-num">— 03</div>
+          <h3 class="pilier-title">Ancrage 6 Mois</h3>
+          <p class="pilier-tagline">Tu consolides sans repartir à zéro.</p>
+          <ul class="pilier-list">
+            <li>Chat Skool disponible</li>
+            <li>Replays des cours accessibles</li>
+            <li>Routines et bibliothèque maintenues</li>
+            <li>Aucune rechute après le programme</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="interconnect reveal-8">
+        <div class="interconnect-icon">↻</div>
+        <p class="interconnect-text">
+          <strong>Le Protocole s'adapte à chaque situation.</strong>
+          Ton univers musical, ton emploi du temps, ton niveau de départ — tout est calibré sur toi.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 4 — LES BONUS
+       ==================================================== -->
+  <section class="slide bonus" data-slide="4">
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">04</span> / 07</div>
+    <div class="slide-content">
+      <div class="piliers-header">
+        <div class="section-eyebrow reveal-2" style="justify-content: center;">En plus du programme</div>
+        <h2 class="section-title reveal-3" style="margin-bottom: 16px;">
+          5 <em>bonus</em> exclusifs
+        </h2>
+      </div>
+
+      <div class="bonus-grid">
+        <div class="bonus-card reveal-4">
+          <div class="bonus-num">1</div>
+          <div class="bonus-content">
+            <h4 class="bonus-title">Bibliothèque Guitare Mastery</h4>
+            <p class="bonus-desc">+20 modules vidéo organisés par technique, niveau et style. Accès à vie.</p>
+          </div>
+        </div>
+
+        <div class="bonus-card reveal-5">
+          <div class="bonus-num">2</div>
+          <div class="bonus-content">
+            <h4 class="bonus-title">Communauté Skool</h4>
+            <p class="bonus-desc">Espace privé réservé aux élèves engagés dans le Protocole.</p>
+          </div>
+        </div>
+
+        <div class="bonus-card reveal-6">
+          <div class="bonus-num">3</div>
+          <div class="bonus-content">
+            <h4 class="bonus-title">Cours collectif mensuel</h4>
+            <p class="bonus-desc">Une session collective par mois en plus de tes cours 1-to-1, sur des thématiques transversales.</p>
+          </div>
+        </div>
+
+        <div class="bonus-card reveal-7">
+          <div class="bonus-num">4</div>
+          <div class="bonus-content">
+            <h4 class="bonus-title">Protocole Semaine Difficile</h4>
+            <p class="bonus-desc">Routine de 5 min/jour pour ne jamais perdre tes acquis, même dans les périodes chargées.</p>
+          </div>
+        </div>
+
+        <div class="bonus-card reveal-8" style="grid-column: 1 / -1; max-width: 50%; margin: 0 auto;">
+          <div class="bonus-num">5</div>
+          <div class="bonus-content">
+            <h4 class="bonus-title">Plan d'Apprentissage Personnalisé</h4>
+            <p class="bonus-desc">Livré dès la 1ère session. Pas de phase de découverte, on attaque directement tes blocages.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 5 — GARANTIE
+       ==================================================== -->
+  <section class="slide garantie" data-slide="5">
+    <div class="cover-bg"></div>
+    <div class="brand reveal-1" style="color: var(--gris-300);">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1" style="color: var(--gris-500);"><span class="current" style="color: var(--rouge-light);">05</span> / 07</div>
+    <div class="slide-content">
+      <div class="garantie-shield reveal-2">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2L3 7v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V7l-9-5z"/>
+          <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="section-eyebrow reveal-3">Garantie résultat</div>
+      <h2 class="garantie-title reveal-4">
+        Aucune évolution ?<br><em>Remboursé + 500 €.</em>
+      </h2>
+      <p class="garantie-statement reveal-5">
+        Si à la fin des 90 jours tu n'as eu <strong>aucune évolution</strong> dans ton jeu,
+        on te rembourse <strong>intégralement les 1 197 €</strong> — et on t'envoie
+        <strong>500 € de plus</strong> pour le temps que tu auras perdu.
+      </p>
+      <div class="garantie-conditions reveal-6">
+        <span style="opacity: 0.6;">Une seule condition :</span>
+        <strong>avoir réellement suivi le Protocole.</strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 6 — VALEUR & PRIX
+       ==================================================== -->
+  <section class="slide prix" data-slide="6">
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">06</span> / 07</div>
+    <div class="slide-content">
+      <div class="piliers-header" style="margin-bottom: 50px;">
+        <div class="section-eyebrow reveal-2" style="justify-content: center;">L'investissement</div>
+        <h2 class="section-title reveal-3" style="margin-bottom: 0;">
+          La <em>valeur</em> en détail
+        </h2>
+      </div>
+
+      <div class="prix-layout">
+        <div class="prix-table reveal-4">
+          <div class="prix-table-title">Décomposition de la valeur</div>
+          <div class="prix-row">
+            <div class="prix-row-label">12 sessions 1-to-1 avec Léo (60 €/h)</div>
+            <div class="prix-row-value">720 €</div>
+          </div>
+          <div class="prix-row">
+            <div class="prix-row-label">Plan d'apprentissage personnalisé</div>
+            <div class="prix-row-value">200 €</div>
+          </div>
+          <div class="prix-row">
+            <div class="prix-row-label">Bibliothèque Guitare Mastery (accès à vie)</div>
+            <div class="prix-row-value">600 €</div>
+          </div>
+          <div class="prix-row">
+            <div class="prix-row-label">Cours collectifs + Communauté (12 mois)</div>
+            <div class="prix-row-value">240 €</div>
+          </div>
+          <div class="prix-row">
+            <div class="prix-row-label">Ancrage 6 mois post-programme</div>
+            <div class="prix-row-value">360 €</div>
+          </div>
+          <div class="prix-row">
+            <div class="prix-row-label">Protocole Semaine Difficile</div>
+            <div class="prix-row-value">100 €</div>
+          </div>
+          <div class="prix-total">
+            <div class="prix-total-label">Valeur totale</div>
+            <div class="prix-total-value">2 220 €+</div>
+          </div>
+        </div>
+
+        <div class="prix-final reveal-5">
+          <div class="prix-final-label">Ton investissement</div>
+          <div class="prix-final-amount">1 197<span class="prix-final-currency">€</span></div>
+          <div class="prix-final-divider"></div>
+          <div class="prix-final-alt">ou <strong>3 × 399 €</strong></div>
+          <div class="prix-savings reveal-6">Moins de la moitié de la valeur</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================
+       SLIDE 7 — ASYMÉTRIE DE RISQUE
+       ==================================================== -->
+  <section class="slide risque" data-slide="7">
+    <div class="brand reveal-1">Léo Guitare Mastery</div>
+    <div class="slide-number reveal-1"><span class="current">07</span> / 07</div>
+    <div class="slide-content">
+      <div class="piliers-header">
+        <div class="section-eyebrow reveal-2" style="justify-content: center;">La décision</div>
+        <h2 class="section-title reveal-3" style="margin-bottom: 16px;">
+          Tu prends <em>0 risque réel</em>
+        </h2>
+        <p class="section-text reveal-4" style="margin: 0 auto; max-width: 640px; text-align: center;">
+          Le risque est sur Léo, pas sur toi.
+          La seule chose que tu engages, c'est ta pratique régulière.
+        </p>
+      </div>
+
+      <div class="risque-balance">
+        <div class="risque-side lui reveal-5">
+          <div class="risque-label">Léo s'engage à</div>
+          <div class="risque-amount">100%</div>
+          <p class="risque-detail">
+            Te délivrer une transformation mesurable<br>
+            ou te rembourser intégralement.
+          </p>
+        </div>
+
+        <div class="risque-vs reveal-6">VS</div>
+
+        <div class="risque-side toi reveal-7">
+          <div class="risque-label">Toi tu engages</div>
+          <div class="risque-amount">Ta pratique</div>
+          <p class="risque-detail">
+            45 min/sem en session +<br>
+            30-45 min/jour de routine.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ====================================================
+     NAVIGATION
+     ==================================================== -->
+<div class="nav" role="navigation" aria-label="Navigation des slides">
+  <button class="nav-btn" id="prev" aria-label="Slide précédente">←</button>
+  <div class="nav-dots" id="dots"></div>
+  <button class="nav-btn" id="next" aria-label="Slide suivante">→</button>
+</div>
+
+<div class="keyboard-hint">
+  <kbd>←</kbd> <kbd>→</kbd> pour naviguer
+</div>
+
+<script>
+  // ==========================================================
+  // NAVIGATION DECK
+  // ==========================================================
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const prevBtn = document.getElementById('prev');
+  const nextBtn = document.getElementById('next');
+  const dotsContainer = document.getElementById('dots');
+
+  // Création des dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `Aller à la slide ${i + 1}`);
+    dot.addEventListener('click', () => goTo(i));
+    dotsContainer.appendChild(dot);
+  }
+
+  const dots = document.querySelectorAll('.nav-dot');
+
+  function updateUI() {
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total) return;
+    current = index;
+    updateUI();
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  // Navigation clavier
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      prev();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goTo(total - 1);
+    } else if (e.key >= '1' && e.key <= '9') {
+      const i = parseInt(e.key, 10) - 1;
+      if (i < total) goTo(i);
+    }
+  });
+
+  // Navigation au clic global (sauf sur la nav et les boutons)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('.nav') || e.target.closest('button')) return;
+    // Click droite de l'écran = next, gauche = prev (subtil)
+    const w = window.innerWidth;
+    if (e.clientX > w * 0.7) next();
+    else if (e.clientX < w * 0.3) prev();
+  });
+
+  // Init
+  updateUI();
+</script>
+
+</body>
+</html>
